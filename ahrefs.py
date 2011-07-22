@@ -3,6 +3,7 @@ import datetime
 from collections import defaultdict
 from lxml import etree
 
+TIME_PARSE_FORMAT='%Y-%m-%dT%H:%M:%SZ'
 class ahrefs(object):
 	def __init__(self,key):
 		self.key = key
@@ -21,26 +22,20 @@ class ahrefs(object):
 			if text.lower() in ('true','false'):
 				text = text.lower() == 'true'
 			if tag == 'visited':
-				text = datetime.datetime.strptime(text,'%Y-%m-%dT%H:%M:%SZ')
+				text = datetime.datetime.strptime(text,TIME_PARSE_FORMAT)
 			parsed_result[tag] = text
 		for child in result.iterchildren():
 			text = child.text.strip()
 			tag = child.tag.strip().replace('{'+self.namespace % method_name+'}','')
 			if text.lower() in ('true','false'):
-				text = text.lower() == 'true'
+				text = (text.lower() == 'true')
 			if tag == 'visited':
-				text = datetime.datetime.strptime(text,'%Y-%m-%dT%H:%M:%SZ')
+				text = datetime.datetime.strptime(text, TIME_PARSE_FORMAT)
 			if isinstance(text,basestring):
-				if '.' in text:
-					try:
-						text = float(text)
-					except:
-						pass
-				else:
-					try:
-						text = int(text)
-					except:
-						pass
+                try:
+                    if '.' in text: text = float(text)
+                    else: text = int(text)
+                except: pass
 			parsed_result[tag] = text
 		return parsed_result
 		
